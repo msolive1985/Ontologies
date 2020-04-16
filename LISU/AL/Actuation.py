@@ -7,6 +7,21 @@ sys.path.insert(0, filepath + "/LISU")
 
 from Data.DataSource import *
 
+# T: x,y,z R: x,y,z
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+# For the actions coming from the ontology
+list_macros = []
+macro_name = ""
+array_index = 0
+
+# For the speed of Drishti
+speed = 0.0
+# For the angle in Drishti_VE
+angle = 5
+
 class Macros:
     def __init__(self,controller_name):
         self.controller_name = controller_name
@@ -41,10 +56,6 @@ class Macros:
 
         return list_macros
 
-roll = 0.0
-pitch = 0.0
-yaw = 0.0
-
 def send_packet(val):
     UDP_IP = "127.0.0.1"
     UDP_PORT = 7755
@@ -64,12 +75,36 @@ def lowpassFilter(input_pwn):
 
     return input_pwn
 
+def getSpeed():
+    global speed
+    if speed == 0.0:
+        speed = 0.125 # This is the slowest, but get value based on Hz
+    return(speed)
+
+def getMacros(joystick_productName):
+    global list_macros
+    global macro_name
+
+    # Creates an object of type macro based on the controller
+    obj_macro = Macros(joystick_productName)
+    list_macros = obj_macro.Get_All_Macros()
+
+    # Sets with the initial value
+    #macro_name = list_macros[0]
+
 def packetHandler(xAxis, yAxis, zAxis):
+    global macro_name
     xAxis = roll
     yAxis = pitch
     zAxis = yaw
     if xAxis != 0.0 or yAxis != 0.0 or zAxis != 0.0:
-        packet = "addrotation {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
+        packet = "{} {} {} {} {}".format(macro_name, float(xAxis), float(yAxis), float(zAxis), int(angle))
+        #if xAxis != 0.0:
+        #    packet = "MovementUpDown {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
+        #elif yAxis != 0.0:
+        #    packet = "MovementForward {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
+        #elif zAxis != 0.0:
+        #    packet = "Swerve {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
         print(packet)
         send_packet(packet)
 
@@ -115,8 +150,47 @@ def btnHandler(val):
     print("Button State Changed. Value={}".format(val) )
 
 def triangleBtnHandler(val):
+    global array_index
+    global macro_name
+
     """ Handler function for the triangle button """
     if val == 1 :
-        print("Triangle button pressed")
-    else:
-        print("Triangle button released")
+        array_index = array_index + 1
+        if array_index >= len(list_macros):
+            array_index = 0
+
+        macro_name = list_macros[array_index]
+        print("Triangle button pressed. Macro selected: {}".format(macro_name))
+
+    #else:
+    #    print("Triangle button released")
+
+def squareBtnHandler(val):
+    global array_index
+    global macro_name
+
+    """ Handler function for the square button """
+    if val == 1 :
+        print("Square button pressed")
+
+def circleBtnHandler(val):
+    global speed
+
+    """ Handler function for the circle button """
+    if val == 1 :
+        speed = speed + speed
+        if speed >= 1:
+            speed = 0.125
+
+        print("Circle button pressed. Speed selected {}".format(speed))
+
+def crossXBtnHandler(val):
+    global angle
+
+    """ Handler function for the cross button """
+    if val == 1 :
+        angle = angle + 5
+        if angle > 30:
+            angle = 5
+
+        print("Cross button pressed. Angle selected {}".format(angle))

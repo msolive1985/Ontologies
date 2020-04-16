@@ -2,6 +2,7 @@ import os
 import usb.core
 import usb.util
 import usb.backend.libusb1
+import qprompt
 import sys
 
 filepath = os.path.abspath(os.path.join("/Mario/3.3/LISU", os.pardir))
@@ -29,24 +30,25 @@ def get_controllers():
                 controllers_list.append(c2)
     return controllers_list
 
-def startController(UDP_PORT, i, joystick_productName):
+def startController(UDP_PORT, i, joystick_productName, virtual_environment):
     PID_proc = os.getpid()
     print("ID of process running controller {}: {}".format(joystick_productName, PID_proc))
-    Joystick(joystick_productName)
+    Joystick(joystick_productName, virtual_environment)
 
-def runInParallel(controllers_list):
+def runInParallel(controllers_list, virtual_environment):
     try:
         proc = []
         no_devices = len(controllers_list)
         #print(str(no_devices))
-        os.system('cls')
+        qprompt.clear()
+        print("LISU controller for {}...".format(virtual_environment))
         print("To quit, press ctrl+'c'...")
 
         for lx in range(0,no_devices):
             joystick_productName = controllers_list[lx].productName
             #print(joystick_productName)
             #Joystick(joystick_productName)
-            p = Process(target=startController, args=(UDP_PORT, lx, joystick_productName, ))
+            p = Process(target=startController, args=(UDP_PORT, lx, joystick_productName,virtual_environment, ))
             p.start()
             proc.append(p)
 
@@ -55,11 +57,12 @@ def runInParallel(controllers_list):
 
     except KeyboardInterrupt:
         print("Caught KeyboardInterrupt")
-        os.system('cls')
+        qprompt.ask_yesno(default="y")
+        qprompt.clear()
 
-def mainTraditional():
+def mainLisuControllers(virtual_environment):
     controllers_list = get_controllers()
-    runInParallel(controllers_list)
+    runInParallel(controllers_list, virtual_environment)
 
 #if __name__ == '__main__':
 #    main()
