@@ -7,6 +7,7 @@ from pygame.locals import *
 PS4Controller = "Wireless Controller"
 XBoxController = "Controller (XBOX 360 For Windows)"
 PCGameController = "PC Game Controller"
+Unity_3D = "Unity 3D"
 
 filepath = os.path.abspath(os.path.join("/Mario/3.3/LISU", os.pardir))
 sys.path.insert(0, filepath + "/LISU")
@@ -37,7 +38,7 @@ def pwmConversion(input_pwm):
     return((input_pwm * -0.1) + 0.1)
 
 # This represents a independent controller
-def Joystick(joystick_productName):
+def Joystick(joystick_productName, virtual_environment):
     cnt = LisuController("Game Controller", initStatus, joystick_productName,
                           leftTriggerChanged = leftTrigChangeHandler,
                           rightTriggerChanged = rightTrigChangeHandler,
@@ -45,9 +46,9 @@ def Joystick(joystick_productName):
                           rightStickChanged = rightStickChangeHandler,
                           hatChanged = hatHandler,
                           triangleBtnChanged = triangleBtnHandler,
-                          squareBtnChanged = btnHandler,
-                          circleBtnChanged = btnHandler,
-                          crossXBtnChanged = btnHandler)
+                          squareBtnChanged = squareBtnHandler,
+                          circleBtnChanged = circleBtnHandler,
+                          crossXBtnChanged = crossXBtnHandler)
 
     if cnt.initialised :
         keepRunning = True
@@ -55,10 +56,24 @@ def Joystick(joystick_productName):
         keepRunning = False
 
     # -------- Main Program Loop -----------
-    while keepRunning == True :
-        # Trigger stick events and check for quit
-        keepRunning = cnt.controllerStatus()
-        packetHandler(xAxis, yAxis, zAxis)
+    if virtual_environment == Unity_3D:
+        while keepRunning == True :
+            # Trigger stick events and check for quit
+            keepRunning = cnt.controllerStatus()
+            packetHandler(xAxis, yAxis, zAxis)
+
+    else:
+        while keepRunning == True :
+            current = time.time()
+            elapsed = 0
+            update_rate = getSpeed()
+
+            keepRunning = cnt.controllerStatus()
+            getMacros(joystick_productName)
+            packetHandler(xAxis, yAxis, zAxis)
+
+            while elapsed < update_rate:
+                elapsed = time.time() - current
 
     pygame.quit()
 
