@@ -1,11 +1,13 @@
 import os
 import sys
 import socket
+import pyautogui
 
 filepath = os.path.abspath(os.path.join("/Mario/3.3/LISU", os.pardir))
 sys.path.insert(0, filepath + "/LISU")
 
 from Data.DataSource import *
+
 
 # T: x,y,z R: x,y,z
 roll = 0.0
@@ -20,7 +22,7 @@ array_index = 0
 # For the speed of Drishti
 speed = 0.0
 # For the angle in Drishti_VE
-angle = 5
+angle = 0
 
 class Macros:
     def __init__(self,controller_name):
@@ -94,19 +96,29 @@ def getMacros(joystick_productName):
 
 def packetHandler(xAxis, yAxis, zAxis):
     global macro_name
-    xAxis = roll
-    yAxis = pitch
-    zAxis = yaw
-    if xAxis != 0.0 or yAxis != 0.0 or zAxis != 0.0:
-        packet = "{} {} {} {} {}".format(macro_name, float(xAxis), float(yAxis), float(zAxis), int(angle))
-        #if xAxis != 0.0:
-        #    packet = "MovementUpDown {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
-        #elif yAxis != 0.0:
-        #    packet = "MovementForward {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
-        #elif zAxis != 0.0:
-        #    packet = "Swerve {} {} {}".format( float(xAxis), float(yAxis), float(zAxis) )
-        print(packet)
-        send_packet(packet)
+
+    xAxis = (-1) * roll
+    yAxis = (-1) * pitch
+    zAxis = (-1) * yaw
+
+    if (macro_name != "") and (xAxis != 0.0 or yAxis != 0.0 or zAxis != 0.0):
+        if macro_name == "clipping":
+            if xAxis > 0:
+                pyautogui.press('left')
+                print("Moving left")
+            elif xAxis < 0:
+                pyautogui.press('right')
+                print("Moving right")
+            elif yAxis > 0:
+                pyautogui.press('up')
+                print("Moving up")
+            elif yAxis < 0:
+                pyautogui.press('down')
+                print("Moving down")
+        else:
+            packet = "{} {} {} {} {}".format(macro_name, float(xAxis), float(yAxis), float(zAxis), int(angle))
+            print(packet)
+            send_packet(packet)
 
 def leftTrigChangeHandler(val):
     """Callback function which displays the position of the left trigger whenever it changes"""
@@ -159,19 +171,24 @@ def triangleBtnHandler(val):
         if array_index >= len(list_macros):
             array_index = 0
 
-        macro_name = list_macros[array_index]
+        macro_name = list_macros[array_index].rstrip()
         print("Triangle button pressed. Macro selected: {}".format(macro_name))
 
-    #else:
-    #    print("Triangle button released")
+        if macro_name == "clipping":
+            pyautogui.mouseDown()
+        else:
+            pyautogui.mouseUp()
 
 def squareBtnHandler(val):
-    global array_index
-    global macro_name
+    global angle
 
     """ Handler function for the square button """
     if val == 1 :
-        print("Square button pressed")
+        angle = angle - 5
+        if angle < 0:
+            angle = 90
+
+        print("Square button pressed. Angle reduced: {}".format(angle))
 
 def circleBtnHandler(val):
     global speed
@@ -190,7 +207,7 @@ def crossXBtnHandler(val):
     """ Handler function for the cross button """
     if val == 1 :
         angle = angle + 5
-        if angle > 30:
-            angle = 5
+        if angle > 90:
+            angle = 0
 
-        print("Cross button pressed. Angle selected {}".format(angle))
+        print("Cross button pressed. Angle increased: {}".format(angle))

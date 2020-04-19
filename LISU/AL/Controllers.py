@@ -44,7 +44,7 @@ def Joystick(joystick_productName, virtual_environment):
                           rightTriggerChanged = rightTrigChangeHandler,
                           leftStickChanged = leftStickChangeHandler,
                           rightStickChanged = rightStickChangeHandler,
-                          hatChanged = hatHandler,
+                          #hatChanged = hatHandler,
                           triangleBtnChanged = triangleBtnHandler,
                           squareBtnChanged = squareBtnHandler,
                           circleBtnChanged = circleBtnHandler,
@@ -52,6 +52,7 @@ def Joystick(joystick_productName, virtual_environment):
 
     if cnt.initialised :
         keepRunning = True
+        getMacros(joystick_productName)
     else:
         keepRunning = False
 
@@ -69,7 +70,6 @@ def Joystick(joystick_productName, virtual_environment):
             update_rate = getSpeed()
 
             keepRunning = cnt.controllerStatus()
-            getMacros(joystick_productName)
             packetHandler(xAxis, yAxis, zAxis)
 
             while elapsed < update_rate:
@@ -79,92 +79,4 @@ def Joystick(joystick_productName, virtual_environment):
 
 # This represents a master controlling all the controllers
 def Synthesizer(joystick_productName):
-    joysticks = []
-    clock = pygame.time.Clock()
-
-    pygame.init()
-
-    # Gets the macro from the ontology
-    keepPlaying = False
-    array_index = 0
-    array_actions = Macros(joystick_productName).Get_All_Macros()
-    selected_macro = array_actions[array_index]
-
-    # initializing the inoute device
-    for i in range(0, pygame.joystick.get_count()):
-        joysticks.append(pygame.joystick.Joystick(i))
-        joysticks[-1].init()
-        if joysticks[-1].get_name().rstrip() == joystick_productName:
-            print ("Detected joystick '",joysticks[-1].get_name(),"'")
-            keepPlaying = True
-
-    while keepPlaying:
-
-        clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                print("Received event 'Quit', exiting.")
-                keepPlaying = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                print("Escape key pressed, exiting.")
-                keepPlaying = False
-
-            elif event.type == pygame.KEYDOWN:
-                print("Keydown,", event.key)
-            elif event.type == pygame.KEYUP:
-                print("Keyup,", event.key)
-            #elif event.type == pygame.MOUSEMOTION:
-             #   print("Mouse movement detected."
-
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                print("Mouse button",event.button,"down at",pygame.mouse.get_pos())
-            elif event.type == pygame.MOUSEBUTTONUP:
-                print ("Mouse button",event.button,"up at",pygame.mouse.get_pos())
-
-            elif event.type == pygame.JOYAXISMOTION:
-                if joystick_productName == PS4Controller:
-                    roll = -1 * (joysticks[event.joy].get_axis(0) - joysticks[event.joy].get_axis(1))
-                    pitch = -1 * (joysticks[event.joy].get_axis(2) - joysticks[event.joy].get_axis(3))
-                    yaw = -1 * (joysticks[event.joy].get_axis(4) -  joysticks[event.joy].get_axis(4))
-
-                elif joystick_productName == XBoxController:
-                    roll = lowpassFilter( -1 * (joysticks[event.joy].get_axis(0) + joysticks[event.joy].get_axis(1)))
-                    pitch = lowpassFilter( -1 * (joysticks[event.joy].get_axis(3) + joysticks[event.joy].get_axis(4)))
-                    yaw = lowpassFilter((joysticks[event.joy].get_axis(2)))
-
-                elif joystick_productName == PCGameController:
-                    roll = joysticks[event.joy].get_axis(0)
-                    pitch = joysticks[event.joy].get_axis(1)
-                    yaw = joysticks[event.joy].get_axis(3)
-
-            elif event.type == pygame.JOYBUTTONDOWN:
-                if event.button == 0:
-                    array_index = array_index + 1
-                    if array_index >= len(array_actions):
-                        array_index = 0
-                    selected_macro = array_actions[array_index]
-                    print("Joystick '",joysticks[event.joy].get_name(),"' action ", selected_macro ," activated.")
-
-                # Increase speed
-                elif event.button == 1:
-                    pass
-                 # decrease speed
-                elif event.button == 2:
-                    pass
-
-            elif event.type == pygame.JOYHATMOTION:
-                if joysticks[event.joy].get_hat(0) == (0, 1):
-                    yaw = 1.0
-                elif joysticks[event.joy].get_hat(0) == (0, -1):
-                    yaw = -1.0
-                elif joysticks[event.joy].get_hat(0) == (-1, 0):
-                    yaw = 1.0
-                elif joysticks[event.joy].get_hat(0) == (1, 0):
-                    yaw = -1.0
-                elif joysticks[event.joy].get_hat(0) == (0, 0):
-                    yaw = 0.0
-                #print("Joystick '",joysticks[event.joy].get_name(),"' hat",event.hat," moved.",joysticks[event.joy].get_hat(event.hat))
-
-            if roll != 0.0 or pitch != 0.0 or yaw != 0.0:
-                packet = "%s, %s, %s" % (roll, pitch, yaw)
-                print("Joystick ''", joystick_productName, "' : " + packet)
+    print("Under construction...")
