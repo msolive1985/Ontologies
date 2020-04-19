@@ -245,6 +245,7 @@ class LisuController:
             and ( self.leftStickLR != leftStickLR or self.leftStickUD != leftStickUD ) ):
                 self.leftStickLR = leftStickLR
                 self.leftStickUD = leftStickUD
+                #create new event
                 self.leftStickChanged( self.leftStickLR, self.leftStickUD )
 
         if (self.rightStickLRIdx[self.DETECTED_JOYSTICK_IDX] != -1
@@ -258,6 +259,7 @@ class LisuController:
             and ( self.rightStickLR != rightStickLR or self.rightStickUD != rightStickUD ) ):
                 self.rightStickLR = rightStickLR
                 self.rightStickUD = rightStickUD
+                #create new event
                 self.rightStickChanged( self.rightStickLR, self.rightStickUD )
 
         #Process analogue triggers
@@ -376,7 +378,8 @@ class LisuController:
         for event in pygame.event.get(): # User did something
             if ( (event.type == pygame.MOUSEBUTTONDOWN)
             and (self.mouseDown is not None) ):
-                self.mouseDown( pygame.mouse.get_pos(), event.button )
+                self.mouseDown( pygame.mouse.get_pos(), event.button )            
+
             elif event.type == pygame.QUIT: # If user clicked close
                 keepRunning = False # Flag that we are done so we exit this loop
 
