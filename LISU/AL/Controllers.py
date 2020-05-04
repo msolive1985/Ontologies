@@ -48,7 +48,8 @@ def Joystick(joystick_productName, virtual_environment):
                           triangleBtnChanged = triangleBtnHandler,
                           squareBtnChanged = squareBtnHandler,
                           circleBtnChanged = circleBtnHandler,
-                          crossXBtnChanged = crossXBtnHandler)
+                          crossXBtnChanged = crossXBtnHandler,
+                          FPS = 20)
 
     if cnt.initialised :
         keepRunning = True
@@ -61,13 +62,15 @@ def Joystick(joystick_productName, virtual_environment):
         while keepRunning == True :
             # Trigger stick events and check for quit
             keepRunning = cnt.controllerStatus()
-            packetHandler(xAxis, yAxis, zAxis)
+            packetHandler2(xAxis, yAxis, zAxis, virtual_environment)
 
     else:
+        #PgClock = pygame.time.Clock()
+
         while keepRunning == True :
             current = time.time()
             elapsed = 0
-            update_rate = getSpeed()
+            update_rate = getSpeed() / 1000
 
             keepRunning = cnt.controllerStatus()
             packetHandler(xAxis, yAxis, zAxis)
