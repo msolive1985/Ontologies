@@ -8,6 +8,10 @@ sys.path.insert(0, filepath + "/LISU")
 
 from Data.DataSource import *
 
+# Socket management
+#UDP_IP = "192.168.0.31"
+#UDP_IP = "localhost"
+#UDP_PORT = 7755
 
 # T: x,y,z R: x,y,z
 roll = 0.0
@@ -20,9 +24,9 @@ macro_name = ""
 array_index = 0
 
 # For the speed of Drishti
-speed = 0.0
+speed = 120.0
 # For the angle in Drishti_VE
-angle = 0
+angle = 20
 
 class Macros:
     def __init__(self,controller_name):
@@ -79,8 +83,9 @@ def lowpassFilter(input_pwn):
 
 def getSpeed():
     global speed
-    if speed == 0.0:
-        speed = 0.125 # This is the slowest, but get value based on Hz
+    if speed >= 372.0:
+        #speed = 0.125 # This is the slowest, but get value based on Hz
+        speed = 120.0
     return(speed)
 
 def getMacros(joystick_productName):
@@ -94,8 +99,28 @@ def getMacros(joystick_productName):
     # Sets with the initial value
     #macro_name = list_macros[0]
 
+def packetHandler2(xAxis, yAxis, zAxis, virtual_environment):
+    global macro_name
+
+    xAxis = (-1) * roll
+    yAxis = (-1) * pitch
+    zAxis = (-1) * yaw
+
+    if (macro_name != "") and (xAxis != 0.0 or yAxis != 0.0 or zAxis != 0.0):
+        packet = "{} {} {} {} {}".format(macro_name, float(xAxis), float(yAxis), float(zAxis), int(angle))
+        print("{}".format(packet))
+        send_packet(packet)
+
 def packetHandler(xAxis, yAxis, zAxis):
     global macro_name
+    global speed
+
+    if speed == 240.0:
+        auxSpeed = 60.0
+    elif speed == 360.0:
+        auxSpeed = 30.0
+    else:
+        auxSpeed = 120.0
 
     xAxis = (-1) * roll
     yAxis = (-1) * pitch
@@ -117,7 +142,7 @@ def packetHandler(xAxis, yAxis, zAxis):
                 print("Moving down")
         else:
             packet = "{} {} {} {} {}".format(macro_name, float(xAxis), float(yAxis), float(zAxis), int(angle))
-            print(packet)
+            print("{} / {} FPS".format(packet, auxSpeed))
             send_packet(packet)
 
 def leftTrigChangeHandler(val):
@@ -174,10 +199,10 @@ def triangleBtnHandler(val):
         macro_name = list_macros[array_index].rstrip()
         print("Triangle button pressed. Macro selected: {}".format(macro_name))
 
-        if macro_name == "clipping":
-            pyautogui.mouseDown()
-        else:
-            pyautogui.mouseUp()
+        #if macro_name == "clipping":
+        #    pyautogui.mouseDown()
+        #else:
+        #    pyautogui.mouseUp()
 
 def squareBtnHandler(val):
     global angle
@@ -195,11 +220,20 @@ def circleBtnHandler(val):
 
     """ Handler function for the circle button """
     if val == 1 :
-        speed = speed + speed
-        if speed >= 1:
-            speed = 0.125
+        speed = speed + 120.0
+        #speed = speed + speed
+        #if speed >= 1:
+        #    speed = 0.125
+        #if speed >= 130:
+        #    speed = 0.0
+        if speed == 240.0:
+            auxSpeed = 60.0
+        elif speed == 360.0:
+            auxSpeed = 30.0
+        else:
+            auxSpeed = 120.0
 
-        print("Circle button pressed. Speed selected {}".format(speed))
+        print("Circle button pressed. Speed selected {} FPS".format(auxSpeed))
 
 def crossXBtnHandler(val):
     global angle

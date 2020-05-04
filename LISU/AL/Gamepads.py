@@ -144,7 +144,7 @@ class LisuController:
                  hatChanged = None,
                  selectBtnChanged = None, homeBtnChanged = None, startBtnChanged = None, triangleBtnChanged = None,
                  squareBtnChanged = None, circleBtnChanged = None, crossXBtnChanged = None,
-                 mouseDown = None, mouseUp = None):
+                 mouseDown = None, mouseUp = None, FPS = None):
         #Storereferences to callback functions
         self.initStatus = initStatus
         self.leftTriggerChanged = leftTriggerChanged
@@ -164,6 +164,7 @@ class LisuController:
         self.crossXBtnChanged = crossXBtnChanged
         self.mouseDown = mouseDown
         self.mouseUp = mouseUp
+        self.FPS = FPS
 
         controllerFound = False
         lastCount = 0
@@ -371,14 +372,14 @@ class LisuController:
             "X-Cross Button", self.crossXBtnState, self.crossXBtnChanged)
 
         # Limit to 20 frames per second
-        self.clock.tick(20)
+        self.clock.tick(self.FPS)
 
         # Check for quit event
         keepRunning = True
         for event in pygame.event.get(): # User did something
             if ( (event.type == pygame.MOUSEBUTTONDOWN)
             and (self.mouseDown is not None) ):
-                self.mouseDown( pygame.mouse.get_pos(), event.button )            
+                self.mouseDown( pygame.mouse.get_pos(), event.button )
 
             elif event.type == pygame.QUIT: # If user clicked close
                 keepRunning = False # Flag that we are done so we exit this loop

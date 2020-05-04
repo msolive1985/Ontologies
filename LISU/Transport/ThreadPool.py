@@ -12,7 +12,8 @@ from multiprocessing import *
 from Data.DataSource import *
 from AL.Controllers import *
 
-UDP_IP = "127.0.0.1"
+#UDP_IP = "127.0.0.1"
+UDP_IP = "192.168.0.1"
 UDP_PORT = 7755
 
 def get_controllers():
@@ -32,6 +33,9 @@ def get_controllers():
 
 def startController(UDP_PORT, i, joystick_productName, virtual_environment):
     PID_proc = os.getpid()
+    qprompt.clear()
+    print("LISU controller for {}...".format(virtual_environment))
+    print("To quit, press ctrl+'c'...")
     print("ID of process running controller {}: {}".format(joystick_productName, PID_proc))
     Joystick(joystick_productName, virtual_environment)
 
@@ -41,8 +45,6 @@ def runInParallel(controllers_list, virtual_environment):
         no_devices = len(controllers_list)
         #print(str(no_devices))
         qprompt.clear()
-        print("LISU controller for {}...".format(virtual_environment))
-        print("To quit, press ctrl+'c'...")
 
         for lx in range(0,no_devices):
             joystick_productName = controllers_list[lx].productName
